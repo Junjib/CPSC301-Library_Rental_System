@@ -12,6 +12,7 @@ using namespace std;
 void printMenu();
 void readBooks(vector<Book *> &myBooks);
 int readPersons(vector<Person *> &myCardholders);
+void bookCheckout(vector<Book *> myBooks, vector<Person *> myCardholders);
 
 
 /* You are not obligated to use these function declarations - they're just given as examples
@@ -44,6 +45,7 @@ int main()
 
     readBooks(books);
     newID = readPersons(cardholders);
+    bookCheckout(books, cardholders);
 
     /*int choice;
     do
@@ -170,5 +172,56 @@ int readPersons(vector<Person *> &myCardholders)
   readData.close();
 
   return (cardID + 1);
+}
+// ============================================================================
+
+// ============================================================================
+// This function will allow the user to checkout a book. If the user's ID does
+// not exist or deactivated they will recieve a message. If the book is already
+// checked out a message will also be sent. If the ID is valid and the book is
+// available then the book will be checked out. This function returns nothing.
+void bookCheckout(vector<Book *> myBooks, vector<Person *> myCardholders)
+{
+  int bookID, cardID, isValid = 0, cardHolder = 0;
+  string name;
+  vector<int> rentedBooks;
+  vector<int> userID;
+  ifstream readData;
+
+  readData.open("rentals.txt");
+
+  while(readData >> bookID)
+  {
+    readData >> cardID;
+    rentedBooks.push_back(bookID);
+    userID.push_back(cardID);
+  }
+
+  cout << "Please enter the card ID: ";
+  cin >> cardID;
+  for(int i = 0; i < myCardholders.size(); i++)
+  {
+    if(cardID == myCardholders[i]->getId() && myCardholders[i]->isActive() == 1)
+    {
+      cardHolder = i;
+      isValid++;
+    }
+  }
+  if(isValid != 0)
+  {
+    cout << "Cardholder: " << myCardholders[cardHolder]->fullName() << endl;
+  }
+  else
+  {
+    cout << "Card ID not found\n";
+    return;
+  }
+
+  cout << "Please enter the book ID: ";
+  cin >> bookID;
+  for(int j = 0; j < rentedBooks.size(); j++)
+  {
+
+  }
 }
 // ============================================================================
