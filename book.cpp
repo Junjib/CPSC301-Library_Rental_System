@@ -27,6 +27,7 @@ int Book::getId()
 {
     return bookID;
 }
+
 void Book::setPersonPtr(Person * ptr)
 {
   personPtr = ptr;

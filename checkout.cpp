@@ -13,6 +13,9 @@ void printMenu();
 void readBooks(vector<Book *> &myBooks);
 int readPersons(vector<Person *> &myCardholders);
 void bookCheckout(vector<Book *> myBooks, vector<Person *> myCardholders);
+void bookReturn(vector <Book *> myBooks);
+int checkCardholder(vector<Person *> myCardholders, int id);
+int checkBookID(vector<Book *> myBooks, int bookID);
 
 
 /* You are not obligated to use these function declarations - they're just given as examples
@@ -45,7 +48,8 @@ int main()
 
     readBooks(books);
     newID = readPersons(cardholders);
-    bookCheckout(books, cardholders);
+    //bookCheckout(books, cardholders);
+    bookReturn(books);
 
     /*int choice;
     do
@@ -188,6 +192,7 @@ void bookCheckout(vector<Book *> myBooks, vector<Person *> myCardholders)
   vector<int> userID;
   ifstream readData;
 
+// Opens the rentals.txt file and reads the data into rentedBooks and userID.
   readData.open("rentals.txt");
 
   while(readData >> bookID)
@@ -197,17 +202,13 @@ void bookCheckout(vector<Book *> myBooks, vector<Person *> myCardholders)
     userID.push_back(cardID);
   }
 
+  readData.close();
+
+// Asks the user to enter their card ID and checks to make sure the ID is valid.
   cout << "Please enter the card ID: ";
   cin >> cardID;
-  for(int i = 0; i < myCardholders.size(); i++)
-  {
-    if(cardID == myCardholders[i]->getId() && myCardholders[i]->isActive() == 1)
-    {
-      cardHolder = i;
-      isValid++;
-    }
-  }
-  if(isValid != 0)
+  cardHolder = checkCardholder(myCardholders, cardID);
+  if(cardHolder != -1)
   {
     cout << "Cardholder: " << myCardholders[cardHolder]->fullName() << endl;
   }
@@ -217,11 +218,140 @@ void bookCheckout(vector<Book *> myBooks, vector<Person *> myCardholders)
     return;
   }
 
+// Asks the user to enter the book ID and checks to see if the ID is valid and
+// if the book has not already been checked out. If the ID is valid and the
+// book has not been checked out already then the book will be rented to
+// the user.
   cout << "Please enter the book ID: ";
   cin >> bookID;
-  for(int j = 0; j < rentedBooks.size(); j++)
+  isValid = checkBookID(myBooks, bookID);
+  if(isValid == -1)
   {
-
+    cout << "Book ID not found\n";
+    return;
+  }
+  else
+  {
+    for(int i = 0; i < rentedBooks.size(); i++)
+    {
+      if(bookID == rentedBooks[i])
+      {
+        cout << "Book already checked out\n";
+        return;
+      }
+    }
+    for(int j = 0; j < myBooks.size(); j++)
+    {
+      if(bookID == myBooks[j]->getId())
+      {
+        cout << "Title: " << myBooks[j]->getTitle() << endl;
+        rentedBooks.push_back(bookID);
+        userID.push_back(cardID);
+        cout << "Rental Completed\n";
+      }
+    }
   }
 }
+// ============================================================================
+
+// ============================================================================
+// This function checks if the cardholder ID the user entered is valid.
+// It checks to see if the cardholder exists and their card is active.
+// If both these conditions are met it returns the index number of the
+// cardholder. If not it returns a -1.
+int checkCardholder(vector<Person *> myCardholders, int id)
+{
+  int isValid = -1, cardHolder = 0, cardID = id;
+
+  for(int i = 0; i < myCardholders.size(); i++)
+  {
+    if(cardID == myCardholders[i]->getId() && myCardholders[i]->isActive() == 1)
+    {
+      return cardHolder = i;
+    }
+  }
+  return isValid;
+}
+// ============================================================================
+
+// ============================================================================
+// This function checks if the book ID the user entered is valid.
+// If the book exists then it returns a zero. If not it returns a negative one.
+int checkBookID(vector<Book *> myBooks, int bookID)
+{
+  int isValid = -1;
+
+  for(int i = 0; i < myBooks.size(); i++)
+  {
+    if(bookID == myBooks[i]->getId())
+    {
+      isValid = 0;
+      return isValid;
+    }
+  }
+  return isValid;
+}
+// ============================================================================
+
+// ============================================================================
+void bookReturn(vector <Book *> myBooks)
+{
+  int bookID, cardID, isValid, isRented = -1, index;
+  vector <int> rentedBooks;
+  vector <int> userID;
+  ifstream readData;
+
+  readData.open("rentals.txt");
+
+  while(readData >> bookID)
+  {
+    readData >> cardID;
+    rentedBooks.push_back(bookID);
+    userID.push_back(cardID);
+  }
+
+  readData.close();
+
+  cout << "Please enter the book ID to return: ";
+  cin >> bookID;
+  isValid = checkBookID(myBooks, bookID);
+  if(isValid == -1)
+  {
+    cout << "Book ID not found\n";
+    return;
+  }
+  else
+  {
+    for(int i = 0; i < rentedBooks.size(); i++)
+    {
+      if(bookID == rentedBooks[i])
+      {
+        isRented++;
+        index = i;
+      }
+    }
+    if(isRented == -1)
+    {
+      cout << "Book ID not found\n";
+      return;
+    }
+    else
+    {
+      for(int j = 0; j < myBooks.size(); j++)
+      {
+        if(bookID == myBooks[j]->getId())
+        {
+          cout << "Title: " << myBooks[j]->getTitle() << endl;
+          rentedBooks.erase(rentedBooks.begin() + index);
+          userID.erase(userID.begin() + index);
+          cout << "Return Completed\n";
+        }
+      }
+    }
+  }
+}
+// ============================================================================
+
+// ============================================================================
+
 // ============================================================================
