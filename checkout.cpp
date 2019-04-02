@@ -17,6 +17,8 @@ void readRentals(vector<Book *> &myBooks, vector<Person *> myCardholders);
 void bookCheckout(vector<Book *> &myBooks, vector<Person *> myCardholders);
 void bookReturn(vector<Book *> &myBooks);
 void availableBooks(vector<Book *> myBooks);
+void outstandingRentals(vector<Book *> myBooks);
+void cardholderRentals(vector<Book *> myBooks, vector <Person *> myCardholders);
 
 // Helper functions
 int checkCardholder(vector<Person *> myCardholders, int id);
@@ -57,6 +59,11 @@ int main()
     readBooks(books);
     newID = readPersons(cardholders);
     readRentals(books, cardholders);
+    //cout << cardholders[17]->getFirstName() << endl;
+    //cout << cardholders[17]->fullName() << endl;
+    //cout << cardholders[17]->getLastName() << endl;
+    //cout << books[49]->getTitle() << endl;
+
 
     int choice;
     do
@@ -84,10 +91,12 @@ int main()
 
             case 4:
                 // View all outstanding rentals
+                outstandingRentals(books);
                 break;
 
             case 5:
                 // View outstanding rentals for a cardholder
+                cardholderRentals(books, cardholders);
                 break;
 
             case 6:
@@ -415,6 +424,68 @@ void availableBooks(vector<Book *> myBooks)
   if(bookCounter == 0)
   {
     cout << "No available books\n";
+  }
+}
+// ============================================================================
+
+// ============================================================================
+// This function displays the books that currently rented out.
+void outstandingRentals(vector<Book *> myBooks)
+{
+  int rentalCounter = 0;
+
+  for(int i = 0; i < myBooks.size(); i++)
+  {
+    if(myBooks[i]->getPersonPtr() != nullptr)
+    {
+      cout << "Book ID: " << myBooks[i]->getId() << endl;
+      cout << "Title: " << myBooks[i]->getTitle() << endl;
+      cout << "Author: " << myBooks[i]->getAuthor() << endl;
+      cout << "Cardholder: " << myBooks[i]->getPersonPtr()->fullName() << endl;
+      cout << "Card ID: " << myBooks[i]->getPersonPtr()->getId() << endl << endl;
+      rentalCounter++;
+    }
+  }
+  if(rentalCounter == 0)
+  {
+    cout << "No outstanding rentals\n";
+  }
+}
+// ============================================================================
+
+// ============================================================================
+// This function asks the user to enter a card ID and then displays the books
+// currently rented out by that cardholder. So long the card ID entered is valid.
+void cardholderRentals(vector<Book *> myBooks, vector <Person *> myCardholders)
+{
+  int cardID, cardHolder, cardholderRentalsCntr = 0;
+
+  cout << "Please enter the card ID: ";
+  cin >> cardID;
+  cardHolder = checkCardholder(myCardholders, cardID);
+  if(cardHolder == -1)
+  {
+    cout << "Card ID not found\n";
+    return;
+  }
+  else
+  {
+    cout << "Cardholder: " << myCardholders[cardHolder]->fullName() << endl;
+    for(int i = 0; i < myBooks.size(); i++)
+    {
+      if(myBooks[i]->getPersonPtr() != nullptr && cardID == myBooks[i]->getPersonPtr()->getId())
+      {
+        cout << endl;
+        cout << "Book ID: " << myBooks[i]->getId() << endl;
+        cout << "Title: " << myBooks[i]->getTitle() << endl;
+        cout << "Author: " << myBooks[i]->getAuthor() << endl;
+        cardholderRentalsCntr++;
+      }
+    }
+    if(cardholderRentalsCntr == 0)
+    {
+      cout << "No books currently checked out\n";
+    }
   }
 }
 // ============================================================================
