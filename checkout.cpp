@@ -19,6 +19,8 @@ void bookReturn(vector<Book *> &myBooks);
 void availableBooks(vector<Book *> myBooks);
 void outstandingRentals(vector<Book *> myBooks);
 void cardholderRentals(vector<Book *> myBooks, vector <Person *> myCardholders);
+void openCard(vector<Person *> &myCardholders, int &newID);
+void closeCard(vector<Person *> &myCardholders);
 
 // Helper functions
 int checkCardholder(vector<Person *> myCardholders, int id);
@@ -59,11 +61,6 @@ int main()
     readBooks(books);
     newID = readPersons(cardholders);
     readRentals(books, cardholders);
-    //cout << cardholders[17]->getFirstName() << endl;
-    //cout << cardholders[17]->fullName() << endl;
-    //cout << cardholders[17]->getLastName() << endl;
-    //cout << books[49]->getTitle() << endl;
-
 
     int choice;
     do
@@ -81,7 +78,7 @@ int main()
 
             case 2:
                 // Book return
-                  bookReturn(books);
+                bookReturn(books);
                 break;
 
             case 3:
@@ -101,10 +98,12 @@ int main()
 
             case 6:
                 // Open new library card
+                openCard(cardholders, newID);
                 break;
 
             case 7:
                 // Close library card
+                closeCard(cardholders);
                 break;
 
             case 8:
@@ -160,8 +159,8 @@ void readBooks(vector<Book *> &myBooks)
     bookPtr = new Book(id, title, author, category);
     myBooks.push_back(bookPtr);
   }
-  delete bookPtr;
-  bookPtr = nullptr;
+  //delete bookPtr;
+  //bookPtr = nullptr;
 
   readData.close();
 }
@@ -190,8 +189,8 @@ int readPersons(vector<Person *> &myCardholders)
     personPtr = new Person(cardID, active, firstName, lastName);
     myCardholders.push_back(personPtr);
   }
-  delete personPtr;
-  personPtr = nullptr;
+  //delete personPtr;
+  //personPtr = nullptr;
   readData.close();
 
   return (cardID + 1);
@@ -485,6 +484,94 @@ void cardholderRentals(vector<Book *> myBooks, vector <Person *> myCardholders)
     if(cardholderRentalsCntr == 0)
     {
       cout << "No books currently checked out\n";
+    }
+  }
+}
+// ============================================================================
+
+// ============================================================================
+// This function creates a new card for the user. If the first name and last
+// name do not match with any of the existing names in the system then a new
+// card will be created. If the first and last names do match then that card
+// will be reactivated.
+void openCard(vector<Person *> &myCardholders, int &newID)
+{
+  string firstName, lastName;
+  bool active = 1;
+  Person *personPtr = nullptr;
+
+  cout << "Please enter the first name: ";
+  cin >> firstName;
+  cout << "Please enter the last name: ";
+  cin >> lastName;
+
+  for(int i = 0; i < myCardholders.size(); i++)
+  {
+    if(firstName == myCardholders[i]->getFirstName() && lastName == myCardholders[i]->getLastName())
+    {
+      myCardholders[i]->setActive(active);
+      cout << "Card ID " << myCardholders[i]->getId() << " active\n";
+      cout << "Cardholder: " << myCardholders[i]->fullName() << endl;
+      return;
+    }
+  }
+
+    personPtr = new Person(newID, active, firstName, lastName);
+    myCardholders.push_back(personPtr);
+    cout << "Card ID " << newID << " active\n";
+    cout << "Cardholder: " << myCardholders.back()->fullName() << endl;
+    newID++;
+}
+// ============================================================================
+
+// ============================================================================
+// This function deactivates a card. If the ID entered is matched to a card that
+// is currently active then confirmation will be asked to deactivate the card.
+// If the ID is matched to a card that is already deactivated then a message
+// will be displayed stating that.
+void closeCard(vector<Person *> &myCardholders)
+{
+  int cardID, cardHolder = 0, cardIndex;
+  char confirmation;
+  bool active = 0;
+
+  cout << "Please enter the card ID: ";
+  cin >> cardID;
+
+  for(int i = 0; i < myCardholders.size(); i++)
+  {
+    if(cardID != myCardholders[i]->getId())
+    {
+      cardHolder++;
+    }
+  }
+  cardIndex = findCardholderIndex(myCardholders, cardID);
+  if(cardHolder == 18)
+  {
+    cout << "Card ID not found\n";
+    return;
+  }
+  if(active == myCardholders[cardIndex]->isActive())
+  {
+    cout << "Cardholder: " << myCardholders[cardIndex]->fullName() << endl;
+    cout << "Card ID is already inactive\n";
+    return;
+  }
+  else
+  {
+    cout << "Are you sure you want to deactivate card\n";
+    cout << "(y/n)? ";
+    cin >> confirmation;
+
+    if(confirmation == 'y')
+    {
+      myCardholders[cardIndex]->setActive(active);
+      cout << "Card ID deactivated\n";
+      return;
+    }
+    else
+    {
+      return;
     }
   }
 }
