@@ -21,6 +21,7 @@ void outstandingRentals(vector<Book *> myBooks);
 void cardholderRentals(vector<Book *> myBooks, vector <Person *> myCardholders);
 void openCard(vector<Person *> &myCardholders, int &newID);
 void closeCard(vector<Person *> &myCardholders);
+void updateFiles(vector<Book *> myBooks, vector<Person *> myCardholders);
 
 // Helper functions
 int checkCardholder(vector<Person *> myCardholders, int id);
@@ -28,29 +29,7 @@ int checkBookID(vector<Book *> myBooks, int bookID);
 void readRentalsFile(vector<int> &rentedBooks, vector<int> &cardIDs);
 int findBookIndex(vector<Book *> myBooks, int bookID);
 int findCardholderIndex(vector<Person *> myCardholders, int cardID);
-
-
-/* You are not obligated to use these function declarations - they're just given as examples
-void readBooks(vector<Book *> & myBooks) {
-    return;
-}
-
-int readPersons(vector<Person *> & myCardholders) {
-    return 0;
-}
-
-void readRentals(vector<Book *> & myBooks, vector<Person *> myCardholders) {
-    return;
-}
-
-void openCard(vector<Person *> & myCardholders, int nextID) {
-    return;
-}
-
-Book * searchBook(vector<Book *> myBooks, int id) {
-    return nullptr;
-}
-*/
+void deleteBookPointer(Book * personPtr);
 
 int main()
 {
@@ -108,6 +87,7 @@ int main()
 
             case 8:
                 // Must update records in files here before exiting the program
+                updateFiles(books, cardholders);
                 break;
 
             default:
@@ -159,6 +139,7 @@ void readBooks(vector<Book *> &myBooks)
     bookPtr = new Book(id, title, author, category);
     myBooks.push_back(bookPtr);
   }
+
   //delete bookPtr;
   //bookPtr = nullptr;
 
@@ -576,3 +557,45 @@ void closeCard(vector<Person *> &myCardholders)
   }
 }
 // ============================================================================
+
+// ============================================================================
+// This function updates the persons.txt and rentals.txt files based on the
+// options the user selected.
+void updateFiles(vector<Book *> myBooks, vector<Person *> myCardholders)
+{
+  ofstream writeData;
+  int bookID, cardID;
+  bool active;
+  string firstName, lastName;
+
+  writeData.open("persons.txt");
+
+  for(int i = 0; i < myCardholders.size(); i++)
+  {
+    cardID = myCardholders[i]->getId();
+    active = myCardholders[i]->isActive();
+    firstName = myCardholders[i]->getFirstName();
+    lastName = myCardholders[i]->getLastName();
+    writeData << cardID << " " << active << " " << firstName << " " << lastName << endl;
+  }
+  writeData.close();
+
+  writeData.open("rentals.txt");
+
+  for(int j = 0; j < myBooks.size(); j++)
+  {
+    if(myBooks[j]->getPersonPtr() != nullptr)
+    {
+      bookID = myBooks[j]->getId();
+      cardID = myBooks[j]->getPersonPtr()->getId();
+      writeData << bookID << " " << cardID << endl;
+     }
+  }
+  writeData.close();
+}
+// ============================================================================
+
+void deleteBookPointer(Book * personPtr)
+{
+  delete personPtr;
+}
