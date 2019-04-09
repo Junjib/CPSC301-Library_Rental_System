@@ -22,6 +22,7 @@ void cardholderRentals(vector<Book *> myBooks, vector <Person *> myCardholders);
 void openCard(vector<Person *> &myCardholders, int &newID);
 void closeCard(vector<Person *> &myCardholders);
 void updateFiles(vector<Book *> myBooks, vector<Person *> myCardholders);
+void handleMemory(vector<Book *> myBooks, vector<Person *> myCardholders);
 
 // Helper functions
 int checkCardholder(vector<Person *> myCardholders, int id);
@@ -29,7 +30,6 @@ int checkBookID(vector<Book *> myBooks, int bookID);
 void readRentalsFile(vector<int> &rentedBooks, vector<int> &cardIDs);
 int findBookIndex(vector<Book *> myBooks, int bookID);
 int findCardholderIndex(vector<Person *> myCardholders, int cardID);
-void deleteBookPointer(Book * personPtr);
 
 int main()
 {
@@ -48,6 +48,7 @@ int main()
         // the user pressed when entering a menu option. This is still in the input stream.
         printMenu();
         cin >> choice;
+        cout << endl;
         switch(choice)
         {
             case 1:
@@ -88,6 +89,7 @@ int main()
             case 8:
                 // Must update records in files here before exiting the program
                 updateFiles(books, cardholders);
+                handleMemory(books, cardholders);
                 break;
 
             default:
@@ -139,9 +141,7 @@ void readBooks(vector<Book *> &myBooks)
     bookPtr = new Book(id, title, author, category);
     myBooks.push_back(bookPtr);
   }
-
-  //delete bookPtr;
-  //bookPtr = nullptr;
+  bookPtr = nullptr;
 
   readData.close();
 }
@@ -170,8 +170,7 @@ int readPersons(vector<Person *> &myCardholders)
     personPtr = new Person(cardID, active, firstName, lastName);
     myCardholders.push_back(personPtr);
   }
-  //delete personPtr;
-  //personPtr = nullptr;
+  personPtr = nullptr;
   readData.close();
 
   return (cardID + 1);
@@ -239,6 +238,7 @@ void readRentals(vector<Book *> &myBooks, vector<Person *> myCardholders)
     personPtr = myCardholders[cardIndex];
     myBooks[bookIndex]->setPersonPtr(personPtr);
   }
+  personPtr = nullptr;
 }
 // ============================================================================
 
@@ -501,6 +501,7 @@ void openCard(vector<Person *> &myCardholders, int &newID)
     myCardholders.push_back(personPtr);
     cout << "Card ID " << newID << " active\n";
     cout << "Cardholder: " << myCardholders.back()->fullName() << endl;
+    personPtr = nullptr;
     newID++;
 }
 // ============================================================================
@@ -527,7 +528,7 @@ void closeCard(vector<Person *> &myCardholders)
     }
   }
   cardIndex = findCardholderIndex(myCardholders, cardID);
-  if(cardHolder == 18)
+  if(cardHolder == myCardholders.size())
   {
     cout << "Card ID not found\n";
     return;
@@ -595,7 +596,21 @@ void updateFiles(vector<Book *> myBooks, vector<Person *> myCardholders)
 }
 // ============================================================================
 
-void deleteBookPointer(Book * personPtr)
+// ============================================================================
+// This function will delete the dynamic memory pointed to by the pointers in
+// the books and cardholders vectors.
+void handleMemory(vector<Book *> myBooks, vector<Person *> myCardholders)
 {
-  delete personPtr;
+  for(int i = 0; i < myBooks.size(); i++)
+  {
+    delete myBooks[i];
+    myBooks[i] = nullptr;
+  }
+
+  for(int j = 0; j < myCardholders.size(); j++)
+  {
+    delete myCardholders[j];
+    myCardholders[j] = nullptr;
+  }
 }
+// ============================================================================
