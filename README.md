@@ -1,4 +1,4 @@
-# CPSC301-Program4
+# CPSC301-Library_Rental_System
 
 # Name: Junji Bressan
 # Email: Junjib@csu.fullerton.edu
