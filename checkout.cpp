@@ -4,6 +4,8 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <cstdlib>
+#include <ctime>
 #include "person.cpp"
 #include "book.cpp"
 
@@ -23,6 +25,8 @@ void openCard(vector<Person *> &myCardholders, int &newID);
 void closeCard(vector<Person *> &myCardholders);
 void updateFiles(vector<Book *> myBooks, vector<Person *> myCardholders);
 void handleMemory(vector<Book *> myBooks, vector<Person *> myCardholders);
+void searchByCategory(vector<Book *> myBooks, vector<Person *> myCardholders);
+void addBook(vector<Book *> &myBooks);
 
 // Helper functions
 int checkCardholder(vector<Person *> myCardholders, int id);
@@ -30,6 +34,7 @@ int checkBookID(vector<Book *> myBooks, int bookID);
 void readRentalsFile(vector<int> &rentedBooks, vector<int> &cardIDs);
 int findBookIndex(vector<Book *> myBooks, int bookID);
 int findCardholderIndex(vector<Person *> myCardholders, int cardID);
+int generateBookID(vector<Book *> myBooks);
 
 int main()
 {
@@ -44,8 +49,6 @@ int main()
     int choice;
     do
     {
-        // If you use cin anywhere, don't forget that you have to handle the <ENTER> key that
-        // the user pressed when entering a menu option. This is still in the input stream.
         printMenu();
         cin >> choice;
         cout << endl;
@@ -87,7 +90,17 @@ int main()
                 break;
 
             case 8:
-                // Must update records in files here before exiting the program
+                // Search by category
+                searchByCategory(books, cardholders);
+                break;
+
+            case 9:
+                // Add a book to the Inventory
+                addBook(books);
+                break;
+
+            case 10:
+                // Update records in files before exiting the program
                 updateFiles(books, cardholders);
                 handleMemory(books, cardholders);
                 break;
@@ -97,7 +110,7 @@ int main()
                 break;
         }
         cout << endl;
-   } while(choice != 8);
+   } while(choice != 10);
       return 0;
 }
 
@@ -114,7 +127,9 @@ void printMenu()
     cout << "5.  View outstanding rentals for a cardholder" << endl;
     cout << "6.  Open new library card" << endl;
     cout << "7.  Close library card" << endl;
-    cout << "8.  Exit system" << endl;
+    cout << "8.  Search by Category" << endl;
+    cout << "9.  Add Book to Inventory" << endl;
+    cout << "10.  Exit system" << endl;
     cout << "Please enter a choice: ";
 }
 // ============================================================================
@@ -471,6 +486,113 @@ void cardholderRentals(vector<Book *> myBooks, vector <Person *> myCardholders)
 // ============================================================================
 
 // ============================================================================
+// This function will ask the user to enter a book category and then search the
+// books vector and display the books based on that category it will also
+// display the rental status of the book.
+void searchByCategory(vector<Book *> myBooks, vector<Person *> myCardholders)
+{
+  string cat;
+
+  cout << "Enter the category: ";
+  cin.ignore();
+  getline(cin, cat);
+  cout << endl;
+
+  for(int i = 0; i < myBooks.size(); i++)
+  {
+    if(cat == myBooks[i]->getCategory())
+    {
+      cout << "Book ID: " << myBooks[i]->getId() << endl;
+      cout << "Title: " << myBooks[i]->getTitle() << endl;
+      cout << "Author: " << myBooks[i]->getAuthor() << endl;
+      if(myBooks[i]->getPersonPtr() != nullptr)
+      {
+        cout << "Book checked out\n";
+      }
+      else
+      {
+        cout << "Available\n";
+      }
+      cout << endl;
+    }
+  }
+}
+// ============================================================================
+
+// ============================================================================
+// This function will add a book to the books vector. It will first generate a
+// random book ID by calling the generateBookID function. It will then ask the
+// user to enter a title, author, and category. It will check the title to
+// ensure that there are no duplicates. If everything checks out the book will
+// be added to the vector.
+void addBook(vector<Book *> &myBooks)
+{
+  int bookID = generateBookID(myBooks);
+  string title, author, category;
+
+  cout << "Enter the title of the book: ";
+  cin.ignore();
+  getline(cin, title);
+  cout << "Enter the Author of the book: ";
+  getline(cin, author);
+  cout << "Enter the category of the book: ";
+  getline(cin, category);
+  cout << endl;
+
+  //Check for duplicates
+  for(int i = 0; i < myBooks.size(); i++)
+  {
+    if(title == myBooks[i]->getTitle())
+    {
+      cout << "Book already in inventory\n";
+      return;
+    }
+  }
+
+  // Add to myBooks vector
+  Book *bookPtr = new Book(bookID, title, author, category);
+  myBooks.push_back(bookPtr);
+  cout << "Book ID: " << bookID << endl;
+  cout << "Title: " << title << endl;
+  cout << "Author: " << author << endl;
+  cout << "Category: " << category << endl;
+  bookPtr = nullptr;
+}
+// ============================================================================
+
+// ============================================================================
+// This function is called from the addBook function and generates a random
+// ID. The randomly generated ID will be compared with the other IDs in the
+// books vector to ensure no duplicates are present. The ID will be returned if
+// it is not a duplicate.
+int generateBookID(vector<Book *> myBooks)
+{
+  int bookID = 0;
+  bool checkCondition = true, checkDuplicate = false;
+  unsigned seed = time(0);
+  do
+  {
+    srand(seed);
+    bookID = (rand() % (99999 - 10000 + 1) + 10000);
+
+    for(int i = 0; i < myBooks.size(); i++)
+    {
+      if(bookID == myBooks[i]->getId())
+      {
+        cout << "Book ID exists\n";
+        checkDuplicate = true;
+        break;
+      }
+    }
+    if(checkDuplicate == false)
+    {
+      return bookID;
+    }
+  } while(checkCondition == true);
+}
+// ============================================================================
+
+// ============================================================================
 // This function creates a new card for the user. If the first name and last
 // name do not match with any of the existing names in the system then a new
 // card will be created. If the first and last names do match then that card
@@ -560,15 +682,16 @@ void closeCard(vector<Person *> &myCardholders)
 // ============================================================================
 
 // ============================================================================
-// This function updates the persons.txt and rentals.txt files based on the
-// options the user selected.
+// This function updates the persons.txt, books.txt, and rentals.txt files based
+// on the options the user selected.
 void updateFiles(vector<Book *> myBooks, vector<Person *> myCardholders)
 {
   ofstream writeData;
   int bookID, cardID;
   bool active;
-  string firstName, lastName;
+  string firstName, lastName, title, author, category;
 
+  // Updating persons.txt
   writeData.open("persons.txt");
 
   for(int i = 0; i < myCardholders.size(); i++)
@@ -581,6 +704,7 @@ void updateFiles(vector<Book *> myBooks, vector<Person *> myCardholders)
   }
   writeData.close();
 
+  // Updating rentals.txt
   writeData.open("rentals.txt");
 
   for(int j = 0; j < myBooks.size(); j++)
@@ -591,6 +715,22 @@ void updateFiles(vector<Book *> myBooks, vector<Person *> myCardholders)
       cardID = myBooks[j]->getPersonPtr()->getId();
       writeData << bookID << " " << cardID << endl;
      }
+  }
+  writeData.close();
+
+  // Updating books.txt
+  writeData.open("books.txt");
+
+  for(int k = 0; k < myBooks.size(); k++)
+  {
+    bookID = myBooks[k]->getId();
+    title = myBooks[k]->getTitle();
+    author = myBooks[k]->getAuthor();
+    category = myBooks[k]->getCategory();
+    writeData << bookID << endl;
+    writeData << title << endl;
+    writeData << author << endl;
+    writeData << category << endl << endl;
   }
   writeData.close();
 }
