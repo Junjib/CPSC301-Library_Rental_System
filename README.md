@@ -4,7 +4,7 @@
 # Email: Junjib@csu.fullerton.edu
 
 # Description
-This program is a library rental system. It contains options that allows the user to checkout books, return books, view all available books, view all rented books, view all books rented by a particular person, open a new library card, close a library card, and to end the program.
+This program is a library rental system. It contains options that allows the user to checkout books, return books, view all available books, view all rented books, view all books rented by a particular person, open a new library card, close a library card,search for books based on the category, add a new book to the inventory, and to end the program.
 The program has two classes book and person. In the checkout.cpp file containing the main function two vectors are declared containing pointers that point to objects of the book class and objects of the person class. The main reads from provided text files and fills in these vectors with pointers pointing to the objects of their respective classes. There is a third file rentals.txt which contains the book ID and the card ID, based on these IDs the book class contains a pointer that points to a person object if the book IDs match then the person pointer in that particular object will find the person object with a matching card ID. This will be how the program keeps track of which books are currently checked out and by who. Below will be explanations of the options listed above.
 
 # Checkout Book
@@ -29,5 +29,11 @@ This option will allow the user to open a new library card or to reactivate one 
 # Close Library Card
 This option will allow the user to deactivate an active card. It will ask the user to enter a card ID and will check to ensure that the ID is valid and that the ID is not currently inactive. If the ID passes then the user will be asked if they are sure that they want to deactivate the card. If yes then the card will be deactivated.
 
+# Search Based on Category
+This option will allow the user to search for books based on their category (i.e. Fiction, Science, Sports). It will ask the user to enter the category they would like to search and the books that meet that category will be displayed on the screen as well as their checkout status.
+
+# Add a Book to the Inventory
+This option allows the user to add a new book to the inventory. An ID for the book will be randomly generated and then the user will be asked to enter the title, author, and category. The library does not accept duplicates so it will check for any matching titles. Once the checks are passed the book is added to the inventory.
+
 # End Program
-This option when selected will exit the program, but not before updating the persons.txt and rentals.txt files and handling any dynamic memory.  
+This option when selected will exit the program, but not before updating the persons.txt, books.txt, and rentals.txt files and handling any dynamic memory.  
